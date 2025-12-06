@@ -1,4 +1,3 @@
-// app/api/get/route.js   ← 支援 GET + POST，永遠不會 405
 import { createClient } from '@libsql/client/web';
 
 const client = createClient({
@@ -17,12 +16,11 @@ export async function POST(request) {
 
 async function handleRequest(request) {
     try {
-        // 同時支援 GET (?key=xxx) 和 POST {shareKey, inputPassword}
         let shareKey, inputPassword;
 
         if (request.method === 'GET') {
             shareKey = new URL(request.url).searchParams.get('key');
-            inputPassword = '5201314'; // GET 模式直接用測試密碼（方便測試）
+            inputPassword = '5201314';
         } else {
             const body = await request.json();
             shareKey = body.shareKey;
@@ -44,7 +42,6 @@ async function handleRequest(request) {
 
         const row = res.rows[0];
 
-        // 密碼驗證（POST 時才嚴格檢查）
         if (request.method === 'POST' && row.password !== inputPassword) {
             return Response.json({ error: 'wrong password' }, { status: 403 });
         }
